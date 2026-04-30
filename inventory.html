@@ -3,96 +3,63 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard – AdvancedPlus Cloud</title>
+  <title>Inventory – AdvancedPlus Cloud</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            navy:   { DEFAULT: '#0f1c3f', 800: '#162246', 700: '#1e2f5a', 600: '#263971', 500: '#3a5298' },
-            ember:  { DEFAULT: '#FF6D00' },
-          },
-          fontFamily: { sans: ['IBM Plex Sans Thai', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
-        },
-      },
-    };
-  </script>
-
   <style>
-    body { background: #0b1530; }
-    body::before { content: ''; position: fixed; inset: 0; background-image: radial-gradient(circle, rgba(255,109,0,.08) 1px, transparent 1px); background-size: 28px 28px; pointer-events: none; }
-    .panel { background: rgba(22,34,70,0.9); border: 1px solid rgba(255,109,0,0.15); backdrop-filter: blur(10px); }
-    .field { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 0.6rem 1rem; outline: none; }
-    .field:focus { border-color: #FF6D00; }
-    .data-table { border-collapse: collapse; width: 100%; min-width: 1000px; }
-    .data-table th { background: rgba(255,109,0,0.15); color: #FF6D00; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; padding: 1rem; text-align: left; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid rgba(255,109,0,0.3); }
-    .data-table td { padding: 0.8rem 1rem; font-size: 0.8rem; color: #c8d0e8; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .data-table tr:hover { background: rgba(255,255,255,0.03); }
+    body { background: #0b1530; font-family: 'IBM Plex Sans Thai', sans-serif; }
+    .glass-panel { background: rgba(22,34,70,0.95); border: 1px solid rgba(255,109,0,0.15); backdrop-filter: blur(10px); }
+    .data-table { border-collapse: collapse; width: 100%; min-width: 1200px; }
+    .data-table th { background: rgba(255,109,0,0.15); color: #FF6D00; font-size: 0.65rem; padding: 15px; text-align: left; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid rgba(255,109,0,0.3); }
+    .data-table td { padding: 12px 15px; font-size: 0.8rem; color: #c8d0e8; border-bottom: 1px solid rgba(255,255,255,0.05); }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-thumb { background: #FF6D00; border-radius: 10px; }
   </style>
 </head>
-<body class="font-sans min-h-screen text-white relative">
-  
-  <header class="relative z-10 border-b border-white/5 bg-navy/60 backdrop-blur-md">
-    <div class="max-w-screen-xl mx-auto px-4 sm:px-8 h-14 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-ember to-orange-300 flex items-center justify-center">
-          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/></svg>
-        </div>
-        <span class="text-sm font-bold uppercase">AdvancedPlus <span class="text-ember">Cloud</span></span>
-      </div>
+<body class="text-white">
 
-      <nav class="flex gap-6">
-        <a href="index.html" class="text-xs font-bold uppercase text-white/40 hover:text-white transition-colors">Inbound</a>
-        <a href="inventory.html" class="text-xs font-bold uppercase text-ember border-b-2 border-ember pb-1">Dashboard</a>
+  <header class="border-b border-white/5 bg-navy/80 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-screen-2xl mx-auto px-6 h-16 flex items-center justify-between">
+      <span class="font-bold tracking-tighter uppercase">ADVANCEDPLUS <span class="text-orange-500">CLOUD</span></span>
+      <nav class="flex gap-8 text-sm font-bold uppercase tracking-widest">
+        <a href="index.html" class="text-white/40 hover:text-white">Inbound</a>
+        <a href="inventory.html" class="text-orange-500 border-b-2 border-orange-500 pb-1">Dashboard</a>
       </nav>
-
-      <div class="hidden sm:flex items-center gap-2 bg-white/5 rounded-full px-3 py-1 border border-white/10 text-[10px] font-bold uppercase tracking-widest text-white/50">
-        Status: <span class="text-green-400">Live Data</span>
-      </div>
     </div>
   </header>
 
-  <main class="relative z-10 max-w-screen-xl mx-auto px-4 sm:px-8 py-8 flex flex-col h-[calc(100vh-56px)]">
+  <main class="max-w-screen-2xl mx-auto px-6 py-8 h-[calc(100vh-64px)] flex flex-col">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
       <div>
-        <p class="text-[10px] uppercase tracking-widest text-ember font-bold mb-1">Inventory Management</p>
-        <h1 class="text-2xl font-bold">คลังสินค้าคงเหลือ (9 ช่อง)</h1>
+        <p class="text-[10px] uppercase font-bold text-orange-500 mb-1">Central Inventory</p>
+        <h1 class="text-2xl font-bold">ข้อมูลสินค้าคงเหลือ (ทั้งหมด 9 ช่อง)</h1>
       </div>
-      <div class="flex gap-4 w-full md:w-auto">
-         <div class="panel rounded-lg px-4 py-2 flex flex-col justify-center">
-            <p class="text-[9px] text-white/40 uppercase font-bold">Total Items</p>
-            <p class="text-xl font-bold text-white" id="total-count">0</p>
-         </div>
-         <input type="text" id="search" class="field w-full md:w-80" placeholder="🔍 ค้นหา S/N, Model, Supplier..." />
+      <div class="flex items-center gap-4 w-full md:w-auto">
+        <div class="glass-panel px-4 py-2 rounded-lg text-center min-w-[120px]">
+          <p class="text-[8px] uppercase font-bold text-white/30">Total Stocks</p>
+          <p class="text-xl font-bold text-white" id="total-badge">0</p>
+        </div>
+        <input type="text" id="search-input" class="bg-white/5 border border-white/10 rounded-lg px-4 py-3 w-full md:w-96 text-sm outline-none focus:border-orange-500 transition-all" placeholder="🔍 ค้นหา S/N, รุ่น, ผู้ผลิต หรือเลขบิล..." />
       </div>
     </div>
 
-    <div class="panel rounded-2xl overflow-hidden flex-1 flex flex-col">
+    <div class="glass-panel rounded-2xl overflow-hidden flex-1 flex flex-col shadow-2xl">
       <div class="overflow-auto flex-1">
         <table class="data-table">
           <thead>
             <tr>
-              <th>Date In</th>
+              <th>Date In / วันรับ</th>
               <th>ลำดับ</th>
-              <th>Model</th>
+              <th>Model / รุ่น</th>
               <th>Serial Number (S/N)</th>
-              <th>ระยะเวลา (วัน)</th>
-              <th>Last Updated</th>
+              <th>อายุ (วัน)</th>
+              <th>อัปเดตล่าสุด</th>
               <th>Supplier</th>
-              <th>เลขที่ใบส่งของ</th>
+              <th>Invoice</th>
               <th>หมายเหตุ</th>
             </tr>
           </thead>
-          <tbody id="inventory-tbody">
-            <!-- ข้อมูลดึงจาก Firebase -->
-          </tbody>
+          <tbody id="inventory-tbody"></tbody>
         </table>
       </div>
     </div>
@@ -102,77 +69,76 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDKnlB-dWr60Aanaa5g9Av7NdB9pIutcnw",
-      authDomain: "advancedplus-stock.firebaseapp.com",
-      projectId: "advancedplus-stock",
-      storageBucket: "advancedplus-stock.firebasestorage.app",
-      messagingSenderId: "406022848223",
-      appId: "1:406022848223:web:0d625edcb7720d1d6db36a"
+    const firebaseConfig = { 
+      apiKey: "AIzaSyDKnlB-dWr60Aanaa5g9Av7NdB9pIutcnw", 
+      authDomain: "advancedplus-stock.firebaseapp.com", 
+      projectId: "advancedplus-stock", 
+      storageBucket: "advancedplus-stock.firebasestorage.app", 
+      messagingSenderId: "406022848223", 
+      appId: "1:406022848223:web:0d625edcb7720d1d6db36a" 
     };
-
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     let masterData = [];
 
-    async function load() {
-      const q = query(collection(db, "inbound_stock"), orderBy("date_in", "desc"));
-      const snap = await getDocs(q);
-      masterData = [];
-      
-      snap.forEach(doc => {
-        const d = doc.data();
-        masterData.push({
-          date_in: d.date_in ? d.date_in.toDate() : new Date(),
-          order_number: d.order_number || "-",
-          model: d.model || "-",
-          sn: d.sn || "-",
-          duration: d.duration || 0,
-          last_updated: d.last_updated ? d.last_updated.toDate() : new Date(),
-          supplier: d.supplier || "-",
-          invoice: d.invoice || "-",
-          note: d.note || "-"
+    async function loadData() {
+      try {
+        const q = query(collection(db, "inbound_stock"), orderBy("date_in", "desc"));
+        const snap = await getDocs(q);
+        masterData = [];
+        
+        snap.forEach(doc => {
+          const d = doc.data();
+          // แปลง Timestamp ของ Firebase เป็นวันที่แบบอ่านง่าย
+          masterData.push({
+            date_in: d.date_in ? d.date_in.toDate() : new Date(),
+            order_number: d.order_number || "-",
+            model: d.model || "-",
+            sn: d.sn || "-",
+            duration: d.duration || 0,
+            last_updated: d.last_updated ? d.last_updated.toDate() : new Date(),
+            supplier: d.supplier || "-",
+            invoice: d.invoice || "-",
+            note: d.note || "-"
+          });
         });
-      });
-      
-      render(masterData);
+        
+        renderTable(masterData);
+      } catch (err) { console.error(err); }
     }
 
-    function render(data) {
+    function renderTable(data) {
       const tbody = document.getElementById('inventory-tbody');
-      document.getElementById('total-count').textContent = data.length;
+      document.getElementById('total-badge').textContent = data.length;
       
-      tbody.innerHTML = data.map(r => `
-        <tr>
+      tbody.innerHTML = data.map((r, i) => `
+        <tr class="hover:bg-white/5">
           <td class="text-[10px] font-mono opacity-60">${r.date_in.toLocaleString('th-TH')}</td>
-          <td class="font-mono text-xs text-white/50 text-center">${r.order_number}</td>
-          <td class="font-bold text-white">${esc(r.model)}</td>
-          <td class="font-mono text-ember font-bold tracking-wider">${esc(r.sn)}</td>
+          <td class="text-center font-mono opacity-40 text-xs">${r.order_number || (data.length - i)}</td>
+          <td class="font-bold text-white">${r.model}</td>
+          <td class="font-mono text-orange-500 font-bold tracking-wider text-base">${r.sn}</td>
           <td class="text-center font-bold text-green-400">${r.duration} วัน</td>
           <td class="text-[10px] font-mono opacity-40">${r.last_updated.toLocaleString('th-TH')}</td>
-          <td class="text-sm">${esc(r.supplier)}</td>
-          <td class="font-mono text-xs text-white/60">${esc(r.invoice)}</td>
-          <td class="text-xs italic text-white/40 max-w-[150px] truncate" title="${esc(r.note)}">${esc(r.note)}</td>
+          <td>${r.supplier}</td>
+          <td class="font-mono text-xs opacity-60">${r.invoice}</td>
+          <td class="text-xs italic opacity-30 max-w-[150px] truncate" title="${r.note}">${r.note}</td>
         </tr>
       `).join('');
     }
 
-    function esc(s) {
-      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-
-    document.getElementById('search').oninput = e => {
-      const t = e.target.value.toLowerCase().trim();
+    // ระบบค้นหาละเอียด (Search)
+    document.getElementById('search-input').addEventListener('input', (e) => {
+      const keyword = e.target.value.toLowerCase().trim();
       const filtered = masterData.filter(x => 
-        x.sn.toLowerCase().includes(t) || 
-        x.model.toLowerCase().includes(t) || 
-        x.supplier.toLowerCase().includes(t) ||
-        x.invoice.toLowerCase().includes(t)
+        x.sn.toLowerCase().includes(keyword) || 
+        x.model.toLowerCase().includes(keyword) || 
+        x.supplier.toLowerCase().includes(keyword) ||
+        x.invoice.toLowerCase().includes(keyword)
       );
-      render(filtered);
-    };
+      renderTable(filtered);
+    });
 
-    load();
+    loadData();
   </script>
 </body>
 </html>
