@@ -178,6 +178,23 @@
       .page-wrap { margin-left: 0; }
     }
   </style>
+
+  <!-- Firebase App (the core Firebase SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <!-- Firebase Firestore -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script>
 </head>
 <body>
 
@@ -424,8 +441,41 @@
 
     // TODO: เชื่อมต่อ Firebase ที่นี่
     window.submitToCloud = async () => {
-      console.log('[submitToCloud] stagedData:', stagedData);
-      showToast("🔥 พร้อมบันทึก – รอเชื่อมต่อ Firebase");
+      if (stagedData.length === 0) return;
+
+      const btn = document.getElementById('final-save-btn');
+      btn.disabled = true;
+      showToast("⏳ กำลังบันทึกข้อมูลขึ้น Cloud...");
+
+      try {
+        const batch = db.batch();
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('th-TH', { year:'numeric', month:'2-digit', day:'2-digit' });
+
+        stagedData.forEach(item => {
+          const docRef = db.collection("inventory").doc(item.sn);
+          batch.set(docRef, {
+            model: item.model,
+            sn: item.sn,
+            supplier: item.supplier,
+            invoice: item.invoice,
+            note: item.note,
+            date_in: dateStr,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            last_updated: new Date().toLocaleString('th-TH')
+          });
+        });
+
+        await batch.commit();
+        showToast("✅ บันทึกข้อมูลทั้งหมดสำเร็จ!");
+
+        stagedData = [];
+        renderUI();
+      } catch (error) {
+        console.error("Error saving:", error);
+        showToast("❌ เกิดข้อผิดพลาด: " + error.message, "error");
+        btn.disabled = false;
+      }
     };
 
     window.removeItem = (id) => { stagedData = stagedData.filter(x => x.id !== id); renderUI(); };
