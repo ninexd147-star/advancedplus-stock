@@ -4,262 +4,446 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Inbound – AdvancedPlus Cloud</title>
-  
-  <!-- UI Frameworks -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
-
   <style>
-    body { background: #0b1530; font-family: 'IBM Plex Sans Thai', sans-serif; }
-    .glass-panel { background: rgba(22,34,70,0.9); border: 1px solid rgba(255,109,0,0.2); backdrop-filter: blur(10px); }
-    .input-field { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 10px 15px; outline: none; transition: 0.2s; }
-    .input-field:focus { border-color: #FF6D00; box-shadow: 0 0 0 3px rgba(255,109,0,0.1); }
-    #sn-field { font-family: 'JetBrains Mono', monospace; font-size: 1.25rem; border: 1px solid rgba(255,109,0,0.4); background: rgba(255,109,0,0.05); }
-    .btn-primary { background: linear-gradient(135deg, #FF6D00, #FF8C00); color: white; font-weight: bold; border-radius: 8px; padding: 12px; transition: 0.2s; cursor: pointer; text-align: center; border: none; }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,109,0,0.3); }
-    .data-table { width: 100%; border-collapse: collapse; }
-    .data-table th { background: rgba(255,109,0,0.1); color: #FF6D00; padding: 12px; text-align: left; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid rgba(255,109,0,0.2); }
-    .data-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { background: #f5f5f7; font-family: 'IBM Plex Sans Thai', sans-serif; color: #1a1a2e; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 220px; flex-shrink: 0;
+      background: #ffffff;
+      border-right: 1px solid #ececec;
+      display: flex; flex-direction: column;
+      padding: 28px 0;
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 40;
+    }
+    .sidebar-logo {
+      padding: 0 20px 28px;
+      border-bottom: 1px solid #f0f0f0;
+      margin-bottom: 16px;
+    }
+    .sidebar-logo .brand { font-size: .85rem; font-weight: 800; letter-spacing: .04em; color: #1a1a2e; }
+    .sidebar-logo .brand span { color: #ff5722; }
+    .sidebar-logo .sub { font-size: .65rem; color: #aaa; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; margin-top: 2px; }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 20px; font-size: .82rem; font-weight: 600;
+      color: #9ca3af; text-decoration: none; border-radius: 0;
+      transition: color .15s, background .15s;
+      position: relative;
+    }
+    .nav-item.active { color: #ff5722; background: #fff4f1; }
+    .nav-item.active::before {
+      content: ''; position: absolute; left: 0; top: 6px; bottom: 6px;
+      width: 3px; background: #ff5722; border-radius: 0 3px 3px 0;
+    }
+    .nav-item:hover:not(.active) { color: #374151; background: #fafafa; }
+    .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .nav-section { font-size: .6rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: #d1d5db; padding: 14px 20px 6px; }
+
+    .sidebar-footer { margin-top: auto; padding: 16px 20px 0; border-top: 1px solid #f0f0f0; }
+    .user-chip { display: flex; align-items: center; gap: 10px; }
+    .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#ff5722,#ff7043);
+      display: flex; align-items: center; justify-content: center; color: #fff; font-size: .75rem; font-weight: 700; }
+    .user-name { font-size: .8rem; font-weight: 600; color: #374151; }
+    .user-role { font-size: .65rem; color: #9ca3af; }
+
+    /* ── MAIN CONTENT ── */
+    .page-wrap { margin-left: 220px; min-height: 100vh; }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      background: #fff; border-bottom: 1px solid #ececec;
+      padding: 20px 32px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .page-title { font-size: 1.4rem; font-weight: 800; color: #1a1a2e; }
+    .page-subtitle { font-size: .7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; color: #ff5722; margin-bottom: 4px; }
+    .date-chip { display: flex; align-items: center; gap: 6px; font-size: .75rem;
+      color: #9ca3af; background: #f9f9f9; border: 1px solid #ececec;
+      padding: 6px 12px; border-radius: 99px; font-weight: 500; }
+
+    /* ── CARD ── */
+    .card { background: #fff; border: 1px solid #ececec; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,.04); }
+
+    /* ── FORM ELEMENTS ── */
+    .field-label {
+      font-size: .68rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: #9ca3af; margin-bottom: 6px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .field {
+      width: 100%; background: #fafafa; border: 1.5px solid #e8e8e8;
+      border-radius: 10px; color: #1a1a2e; padding: 10px 14px; font-size: .88rem;
+      font-family: 'IBM Plex Sans Thai', sans-serif;
+      transition: border-color .2s, box-shadow .2s, background .2s; outline: none;
+    }
+    .field:focus { background: #fff; border-color: #ff5722; box-shadow: 0 0 0 3px rgba(255,87,34,.1); }
+    .field::placeholder { color: #c4c4cc; }
+    input[list]::-webkit-calendar-picker-indicator { display: none !important; }
+
+    /* SN hero */
+    #sn-wrap { position: relative; }
+    #sn-wrap::before {
+      content: ''; position: absolute; inset: -2px; border-radius: 13px; z-index: 0;
+      background: linear-gradient(135deg, #ff5722, #ff7043, #ffab40);
+      opacity: 0; transition: opacity .3s;
+    }
+    #sn-wrap:focus-within::before { opacity: 1; }
+    #sn-inner { position: relative; z-index: 1; background: #fff; border-radius: 11px; }
+    #sn-field {
+      background: #fffaf8; border: 1.5px solid #ffccbc;
+      font-size: 1.1rem; font-family: 'JetBrains Mono', monospace;
+      letter-spacing: .07em; color: #bf360c; border-radius: 11px;
+    }
+    #sn-field:focus { background: #fff; border-color: transparent; box-shadow: none; }
+    #sn-field::placeholder { color: #ffab91; font-size: .88rem; letter-spacing: 0; }
+    @keyframes pulseRing {
+      0%   { box-shadow: 0 0 0 0 rgba(255,87,34,.4); }
+      70%  { box-shadow: 0 0 0 8px rgba(255,87,34,0); }
+      100% { box-shadow: 0 0 0 0 rgba(255,87,34,0); }
+    }
+    #sn-field:focus { animation: pulseRing 1.8s infinite; }
+
+    /* ── BUTTONS ── */
+    .btn-add {
+      width: 100%; background: linear-gradient(135deg, #ff5722, #ff7043);
+      color: #fff; font-weight: 700; font-size: .9rem; border: none;
+      border-radius: 10px; padding: 12px; cursor: pointer;
+      font-family: 'IBM Plex Sans Thai', sans-serif;
+      box-shadow: 0 4px 16px rgba(255,87,34,.3);
+      transition: transform .15s, box-shadow .15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-add:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(255,87,34,.4); }
+    .btn-add:active { transform: translateY(0); }
+
+    .btn-save {
+      background: #fff; border: 2px solid #ff5722; color: #ff5722;
+      font-weight: 700; font-size: .95rem; border-radius: 12px; padding: 13px 28px;
+      cursor: pointer; font-family: 'IBM Plex Sans Thai', sans-serif;
+      transition: background .2s, color .2s, box-shadow .2s, transform .15s;
+      display: flex; align-items: center; gap: 8px; white-space: nowrap;
+    }
+    .btn-save:hover:not(:disabled) {
+      background: linear-gradient(135deg, #ff5722, #ff7043); color: #fff;
+      box-shadow: 0 6px 22px rgba(255,87,34,.35); transform: translateY(-1px);
+    }
+    .btn-save:disabled { opacity: .3; cursor: not-allowed; }
+
+    /* ── TABLE ── */
+    .data-table { border-collapse: collapse; width: 100%; }
+    .data-table th {
+      background: #fff4f1; color: #bf360c;
+      font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      padding: 12px 14px; text-align: left; border-bottom: 2px solid #ffccbc; white-space: nowrap;
+    }
+    .data-table td { padding: 11px 14px; font-size: .83rem; color: #374151; border-bottom: 1px solid #f3f3f5; vertical-align: middle; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tbody tr { transition: background .12s; }
+    .data-table tbody tr:hover { background: #fff8f6; }
+    @keyframes rowIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+    .row-new { animation: rowIn .2s ease both; }
+
+    .btn-del { background: #fef2f2; border: 1px solid #fecaca; color: #ef4444;
+      border-radius: 7px; padding: 5px 8px; cursor: pointer; transition: background .15s; }
+    .btn-del:hover { background: #fee2e2; }
+
+    .badge { display: inline-flex; align-items: center; justify-content: center;
+      min-width: 22px; height: 22px; border-radius: 99px;
+      background: #ff5722; color: #fff; font-size: .68rem; font-weight: 700; padding: 0 7px; }
+
+    /* ── TOAST ── */
+    #toast-box { position: fixed; bottom: 2rem; right: 2rem; z-index: 999; display: flex; flex-direction: column; gap: 10px; }
+    .toast {
+      background: #1a1a2e; color: #fff; border-left: 3px solid #ff5722;
+      padding: 12px 18px; border-radius: 10px; font-size: .85rem; font-weight: 500;
+      box-shadow: 0 8px 28px rgba(0,0,0,.18); opacity: 0; transform: translateY(12px);
+      transition: opacity .3s, transform .3s;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.error { border-left-color: #ef4444; }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #f5f5f7; }
+    ::-webkit-scrollbar-thumb { background: #ffab91; border-radius: 99px; }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .page-wrap { margin-left: 0; }
+    }
   </style>
 </head>
-<body class="text-white">
+<body>
 
-  <!-- Navigation Bar -->
-  <header class="border-b border-white/5 bg-navy/80 backdrop-blur-md sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <div class="w-8 h-8 bg-ember rounded-lg flex items-center justify-center font-bold text-white">A+</div>
-        <span class="font-bold tracking-tighter">ADVANCEDPLUS <span class="text-orange-500">CLOUD</span></span>
-      </div>
-      <nav class="flex gap-8 text-sm font-bold uppercase tracking-widest">
-        <a href="index.html" class="text-orange-500 border-b-2 border-orange-500 pb-1">Inbound</a>
-        <a href="inventory.html" class="text-white/40 hover:text-white">Dashboard</a>
-      </nav>
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="brand">AdvancedPlus <span>Cloud</span></div>
+      <div class="sub">Inventory System</div>
     </div>
-  </header>
 
-  <main class="max-w-7xl mx-auto px-6 py-8">
-    <div class="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-8">
-      
-      <!-- ส่วนที่ 1: ฟอร์มกรอกข้อมูล -->
-      <section class="glass-panel p-6 rounded-2xl h-fit">
-        <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
-          <span class="w-2 h-6 bg-orange-500 rounded-full"></span> รับเข้าสินค้าใหม่
-        </h2>
-        
-        <div class="space-y-4">
-          <div>
-            <label class="block text-xs font-bold text-white/40 mb-2 uppercase">Model / รุ่นสินค้า</label>
-            <input list="model-list" id="model-input" class="input-field" placeholder="เลือกหรือพิมพ์ชื่อรุ่น...">
-            <datalist id="model-list"></datalist>
-          </div>
+    <div class="nav-section">เมนูหลัก</div>
+    <a href="index.html" class="nav-item active">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+      รับสินค้าเข้า
+    </a>
+    <a href="inventory.html" class="nav-item">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/></svg>
+      คลังสินค้า
+    </a>
 
-          <div>
-            <label class="block text-xs font-bold text-white/40 mb-2 uppercase">Serial Number (S/N)</label>
-            <input id="sn-field" class="input-field" placeholder="สแกนหรือพิมพ์ S/N ที่นี่..." autocomplete="off">
-          </div>
+    <div class="nav-section">รายงาน</div>
+    <a href="#" class="nav-item">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      Dashboard
+    </a>
 
-          <div>
-            <label class="block text-xs font-bold text-white/40 mb-2 uppercase">Supplier / ผู้จัดจำหน่าย</label>
-            <input list="supplier-list" id="supplier-input" class="input-field" placeholder="เลือกผู้จัดจำหน่าย...">
-            <datalist id="supplier-list"></datalist>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-white/40 mb-2 uppercase">Invoice No. / เลขใบส่งของ</label>
-            <input id="invoice-input" class="input-field font-mono" placeholder="ระบุเลขที่บิล...">
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-white/40 mb-2 uppercase">Note / หมายเหตุ</label>
-            <textarea id="note-input" class="input-field resize-none" rows="2" placeholder="ระบุรายละเอียดเพิ่มเติม..."></textarea>
-          </div>
-
-          <button onclick="handleManualAdd()" class="btn-primary w-full mt-4">เพิ่มเข้าตารางพัก (Enter)</button>
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar">W</div>
+        <div>
+          <div class="user-name">Warehouse</div>
+          <div class="user-role">Staff · Active</div>
         </div>
-      </section>
+      </div>
+    </div>
+  </aside>
 
-      <!-- ส่วนที่ 2: ตารางแสดงรายการที่สแกนแล้วแต่ยังไม่ได้บันทึก -->
-      <section class="flex flex-col gap-6">
-        <div class="glass-panel rounded-2xl overflow-hidden flex-1 flex flex-col">
-          <div class="p-5 border-b border-white/5 bg-white/5 flex justify-between items-center">
-            <h3 class="text-sm font-bold text-white/60 uppercase">รายการรอการบันทึก</h3>
-            <div class="flex items-center gap-4">
-              <span class="bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded" id="staged-count">0 ITEMS</span>
-              <button onclick="clearAllStaged()" class="text-[10px] text-red-400 font-bold hover:underline uppercase">ล้างทั้งหมด</button>
+  <!-- ── MAIN ── -->
+  <div class="page-wrap">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <div class="page-subtitle">Inventory · Inbound</div>
+        <div class="page-title">บันทึกรับสินค้าเข้าสต็อก</div>
+      </div>
+      <div class="date-chip">
+        <svg style="width:14px;height:14px" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <span id="todayDate"></span>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="p-6 grid gap-5" style="grid-template-columns: 360px 1fr;">
+
+      <!-- FORM CARD -->
+      <div class="card p-6 flex flex-col gap-5 h-fit">
+        <div class="flex items-center gap-2">
+          <div style="width:3px;height:20px;background:#ff5722;border-radius:99px;flex-shrink:0"></div>
+          <span style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#9ca3af">ข้อมูลสินค้า</span>
+        </div>
+
+        <!-- Model -->
+        <div>
+          <div class="field-label">
+            <svg style="width:13px;height:13px" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+            Model
+          </div>
+          <input list="model-list" id="model-input" class="field" placeholder="พิมพ์หรือเลือก Model…" autocomplete="off" />
+          <datalist id="model-list"></datalist>
+        </div>
+
+        <!-- SN HERO -->
+        <div>
+          <div class="field-label" style="color:#e64a19">
+            <svg style="width:13px;height:13px" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.75M16.75 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Serial Number (S/N)
+            <span style="font-size:.62rem;background:#fff4f1;border:1px solid #ffccbc;color:#ff5722;padding:1px 7px;border-radius:4px;margin-left:2px;font-weight:700;letter-spacing:.06em">SCAN</span>
+          </div>
+          <div id="sn-wrap">
+            <div id="sn-inner" style="padding:2px">
+              <input id="sn-field" class="field" style="width:100%" placeholder="สแกนบาร์โค้ดที่นี่…" autocomplete="off" spellcheck="false" />
             </div>
           </div>
+          <p style="font-size:.7rem;color:#bbb;margin-top:6px">เชื่อมเครื่องสแกนแล้วโฟกัสที่ช่องนี้ได้เลย · กด Enter เพื่อเพิ่ม</p>
+        </div>
 
-          <div class="overflow-auto max-h-[500px]">
+        <!-- Supplier -->
+        <div>
+          <div class="field-label">
+            <svg style="width:13px;height:13px" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            Supplier
+          </div>
+          <input list="supplier-list" id="supplier-input" class="field" placeholder="ชื่อ Supplier…" autocomplete="off" />
+          <datalist id="supplier-list"></datalist>
+        </div>
+
+        <!-- Invoice -->
+        <div>
+          <div class="field-label">
+            <svg style="width:13px;height:13px" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Invoice No.
+          </div>
+          <input id="invoice-input" class="field" style="font-family:'JetBrains Mono',monospace;letter-spacing:.04em" placeholder="INV-XXXXXXXX" autocomplete="off" />
+        </div>
+
+        <!-- Note -->
+        <div>
+          <div class="field-label">
+            <svg style="width:13px;height:13px" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            หมายเหตุ
+          </div>
+          <textarea id="note-input" class="field" style="resize:none" rows="2" placeholder="บันทึกเพิ่มเติม (ถ้ามี)…"></textarea>
+        </div>
+
+        <button class="btn-add" onclick="handleManualAdd()">
+          <svg style="width:16px;height:16px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          เพิ่มลงรายการตรวจสอบ
+        </button>
+      </div>
+
+      <!-- TABLE COLUMN -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <!-- Staging table card -->
+        <div class="card" style="overflow:hidden;flex:1">
+          <!-- toolbar -->
+          <div style="padding:16px 20px;border-bottom:1px solid #f3f3f5;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:3px;height:20px;background:#ff5722;border-radius:99px;flex-shrink:0"></div>
+              <span style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#9ca3af">รายการพักรอบันทึก</span>
+              <span class="badge" id="staged-count">0</span>
+            </div>
+            <button onclick="clearAllStaged()" style="font-size:.72rem;color:#f87171;font-weight:600;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px">
+              <svg style="width:13px;height:13px" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              ล้างทั้งหมด
+            </button>
+          </div>
+
+          <div style="overflow:auto;max-height:420px">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>#</th>
+                  <th style="width:44px">#</th>
                   <th>Model</th>
                   <th>Serial Number</th>
                   <th>Supplier</th>
                   <th>Invoice</th>
-                  <th></th>
+                  <th style="width:52px"></th>
                 </tr>
               </thead>
               <tbody id="staged-tbody"></tbody>
             </table>
-            <div id="empty-state" class="py-20 text-center text-white/10 font-bold uppercase tracking-widest text-xs">
-              ยังไม่มีข้อมูลในรายการพัก
+            <div id="empty-state" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center">
+              <div style="width:52px;height:52px;border-radius:14px;background:#fff4f1;border:1.5px dashed #ffab91;display:flex;align-items:center;justify-content:center;margin-bottom:14px">
+                <svg style="width:24px;height:24px;color:#ffab91" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+              </div>
+              <p style="font-size:.83rem;font-weight:600;color:#9ca3af">ยังไม่มีรายการ</p>
+              <p style="font-size:.7rem;color:#c4c4cc;margin-top:4px">สแกนหรือกรอกข้อมูลแล้วกด "เพิ่มลงรายการ"</p>
             </div>
           </div>
         </div>
 
-        <!-- ปุ่มยืนยันการบันทึก -->
-        <button id="final-save-btn" onclick="submitToCloud()" disabled class="w-full py-4 border-2 border-orange-500 text-orange-500 rounded-xl font-bold uppercase tracking-widest hover:bg-orange-500 hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed">
-          บันทึกข้อมูลเข้าสู่ Cloud Database ✅
-        </button>
-      </section>
+        <!-- Summary + Save -->
+        <div class="card" style="padding:18px 22px;display:flex;align-items:center;flex-wrap:wrap;gap:16px">
+          <div style="display:flex;gap:24px;flex:1;flex-wrap:wrap">
+            <div>
+              <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#9ca3af">รายการทั้งหมด</div>
+              <div style="font-size:1.8rem;font-weight:800;color:#1a1a2e;line-height:1.2" id="sum-count">0</div>
+            </div>
+            <div style="width:1px;background:#ececec;align-self:stretch"></div>
+            <div>
+              <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#9ca3af">Model ที่ไม่ซ้ำ</div>
+              <div style="font-size:1.8rem;font-weight:800;color:#1a1a2e;line-height:1.2" id="sum-models">0</div>
+            </div>
+            <div style="width:1px;background:#ececec;align-self:stretch"></div>
+            <div>
+              <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#9ca3af">สถานะ</div>
+              <div style="margin-top:6px;font-size:.82rem;font-weight:600;color:#9ca3af" id="sum-status">รอข้อมูล…</div>
+            </div>
+          </div>
+          <button id="final-save-btn" class="btn-save" onclick="submitToCloud()" disabled>
+            <svg style="width:18px;height:18px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>
+            บันทึกขึ้น Cloud ✅
+          </button>
+        </div>
+
+      </div>
     </div>
-  </main>
+  </div>
 
-  <!-- ระบบแจ้งเตือน (Toast) -->
-  <div id="toast-box" class="fixed bottom-8 right-8 z-[100] pointer-events-none"></div>
+  <div id="toast-box"></div>
 
-  <!-- Firebase & Logic Script -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-    // 1. การตั้งค่า Firebase (พี่ห้ามแก้ส่วนนี้เด็ดขาด)
-    const firebaseConfig = { 
-      apiKey: "AIzaSyDKnlB-dWr60Aanaa5g9Av7NdB9pIutcnw", 
-      authDomain: "advancedplus-stock.firebaseapp.com", 
-      projectId: "advancedplus-stock", 
-      storageBucket: "advancedplus-stock.firebasestorage.app", 
-      messagingSenderId: "406022848223", 
-      appId: "1:406022848223:web:0d625edcb7720d1d6db36a" 
-    };
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // 2. ตัวแปรเก็บข้อมูลชั่วคราว
+  <script>
     let stagedData = [];
 
-    // 3. ฟังก์ชันโหลดค่า Model และ Supplier จาก Cloud
-    async function loadDropdownData() {
-      try {
-        const snap = await getDoc(doc(db, "system_settings", "dropdowns"));
-        if (snap.exists()) {
-          const { models, suppliers } = snap.data();
-          document.getElementById('model-list').innerHTML = models.map(m => `<option value="${m}">`).join('');
-          document.getElementById('supplier-list').innerHTML = suppliers.map(s => `<option value="${s}">`).join('');
-        }
-      } catch (e) { console.error("Error loading settings:", e); }
-    }
+    document.getElementById('todayDate').textContent =
+      new Date().toLocaleDateString('th-TH', { year:'numeric', month:'long', day:'numeric' });
 
-    // 4. ฟังก์ชันเพิ่มรายการลงตาราง (รองรับ Enter)
     window.handleManualAdd = () => {
       const snInput = document.getElementById('sn-field');
       const sn = snInput.value.trim();
-
-      if (!sn) { 
-        showToast("⚠️ กรุณาระบุ S/N ก่อนเพิ่มรายการ", "error"); 
-        snInput.focus();
-        return; 
-      }
-
-      // ตรวจสอบ S/N ซ้ำในรายการพัก
-      if (stagedData.some(item => item.sn === sn)) {
-        showToast("🔁 S/N นี้อยู่ในรายการพักแล้ว", "error");
-        snInput.value = '';
-        snInput.focus();
-        return;
-      }
-
-      const newItem = {
+      if (!sn) { showToast("⚠️ กรุณาระบุ S/N ก่อนเพิ่มรายการ", "error"); snInput.focus(); return; }
+      if (stagedData.some(x => x.sn === sn)) { showToast("🔁 S/N นี้อยู่ในรายการพักแล้ว", "error"); snInput.value=''; snInput.focus(); return; }
+      stagedData.push({
         id: Date.now(),
         model: document.getElementById('model-input').value || '-',
-        sn: sn,
+        sn,
         supplier: document.getElementById('supplier-input').value || '-',
         invoice: document.getElementById('invoice-input').value || '-',
         note: document.getElementById('note-input').value || ''
-      };
-
-      stagedData.push(newItem);
-      snInput.value = '';
-      snInput.focus();
-      renderUI();
-      showToast("✅ เพิ่มรายการสำเร็จ");
+      });
+      snInput.value = ''; snInput.focus();
+      renderUI(); showToast("✅ เพิ่มรายการสำเร็จ");
     };
 
-    // 5. ฟังก์ชันแสดงผลตาราง
     function renderUI() {
       const tbody = document.getElementById('staged-tbody');
       const empty = document.getElementById('empty-state');
-      const btn = document.getElementById('final-save-btn');
-      
-      document.getElementById('staged-count').textContent = `${stagedData.length} ITEMS`;
-      empty.style.display = stagedData.length ? 'none' : 'block';
-      btn.disabled = stagedData.length === 0;
-
-      tbody.innerHTML = stagedData.map((item, index) => `
-        <tr class="animate-in fade-in slide-in-from-left-4 duration-300">
-          <td class="text-white/20 font-mono text-[10px]">${index + 1}</td>
-          <td class="font-bold text-white/80">${item.model}</td>
-          <td class="font-mono text-orange-500 font-bold">${item.sn}</td>
-          <td>${item.supplier}</td>
-          <td class="font-mono text-xs opacity-50">${item.invoice}</td>
+      const n = stagedData.length;
+      const u = new Set(stagedData.map(x => x.model)).size;
+      document.getElementById('staged-count').textContent = n;
+      document.getElementById('sum-count').textContent = n;
+      document.getElementById('sum-models').textContent = u;
+      document.getElementById('final-save-btn').disabled = !n;
+      document.getElementById('sum-status').innerHTML = n
+        ? `<span style="color:#16a34a;font-weight:700">● พร้อมบันทึก</span>`
+        : `<span style="color:#9ca3af">รอข้อมูล…</span>`;
+      empty.style.display = n ? 'none' : 'flex';
+      tbody.innerHTML = stagedData.map((r, i) => `
+        <tr class="row-new">
+          <td style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:#c4c4cc">${String(i+1).padStart(2,'0')}</td>
+          <td style="font-weight:600;color:#374151;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.model)}">${esc(r.model)}</td>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;color:#e64a19;letter-spacing:.05em">${esc(r.sn)}</td>
+          <td style="color:#6b7280;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.supplier)}</td>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:#9ca3af">${esc(r.invoice)}</td>
           <td>
-            <button onclick="removeItem(${item.id})" class="text-red-400 hover:text-red-200 transition-colors p-2">✕</button>
+            <button class="btn-del" onclick="removeItem(${r.id})">
+              <svg style="width:15px;height:15px" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
           </td>
-        </tr>
-      `).join('');
+        </tr>`).join('');
     }
 
-    // 6. ฟังก์ชันบันทึกข้อมูลทั้งหมดขึ้น Cloud (9 ฟิลด์ตามสั่ง)
+    // TODO: เชื่อมต่อ Firebase ที่นี่
     window.submitToCloud = async () => {
-      const btn = document.getElementById('final-save-btn');
-      btn.disabled = true;
-      showToast("⏳ กำลังเชื่อมต่อ Cloud Database...");
-
-      try {
-        const promises = stagedData.map(item => {
-          return addDoc(collection(db, "inbound_stock"), {
-            date_in: serverTimestamp(),       // 1. วันที่รับเข้า
-            order_number: "",                 // 2. ลำดับ (ไว้รันตอนดึงข้อมูล)
-            model: item.model,                // 3. ชื่อสินค้า/รุ่น
-            sn: item.sn,                      // 4. Serial Number
-            duration: 0,                      // 5. ระยะเวลา (วัน)
-            last_updated: serverTimestamp(),  // 6. อัปเดตล่าสุด
-            supplier: item.supplier,          // 7. ผู้ขาย
-            invoice: item.invoice,            // 8. เลขบิล
-            note: item.note                   // 9. หมายเหตุ
-          });
-        });
-
-        await Promise.all(promises);
-        showToast("🚀 บันทึกข้อมูลสำเร็จทั้งหมดแล้ว!");
-        stagedData = [];
-        renderUI();
-      } catch (err) {
-        console.error(err);
-        showToast("❌ เกิดข้อผิดพลาดในการบันทึก", "error");
-        btn.disabled = false;
-      }
+      console.log('[submitToCloud] stagedData:', stagedData);
+      showToast("🔥 พร้อมบันทึก – รอเชื่อมต่อ Firebase");
     };
 
-    // ฟังก์ชันย่อย
     window.removeItem = (id) => { stagedData = stagedData.filter(x => x.id !== id); renderUI(); };
-    window.clearAllStaged = () => { if(confirm("ล้างรายการทั้งหมด?")) { stagedData = []; renderUI(); } };
-    
+    window.clearAllStaged = () => { if (confirm("ล้างรายการทั้งหมด?")) { stagedData = []; renderUI(); } };
+
     function showToast(msg, type = "success") {
       const box = document.getElementById('toast-box');
-      const toast = document.createElement('div');
-      toast.className = `p-4 mb-3 rounded-lg border shadow-2xl transition-all duration-500 translate-y-10 opacity-0 ${type === 'success' ? 'bg-navy/90 border-green-500 text-green-400' : 'bg-navy/90 border-red-500 text-red-400'}`;
-      toast.textContent = msg;
-      box.appendChild(toast);
-      setTimeout(() => { toast.classList.remove('translate-y-10', 'opacity-0'); }, 10);
-      setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 3000);
+      const t = document.createElement('div');
+      t.className = 'toast' + (type === 'error' ? ' error' : '');
+      t.textContent = msg; box.appendChild(t);
+      requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('show')));
+      setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3000);
     }
 
-    document.getElementById('sn-field').addEventListener('keydown', (e) => { if(e.key === 'Enter') handleManualAdd(); });
-    loadDropdownData();
+    function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    document.getElementById('sn-field').addEventListener('keydown', e => { if (e.key === 'Enter') handleManualAdd(); });
+    renderUI();
   </script>
 </body>
 </html>
