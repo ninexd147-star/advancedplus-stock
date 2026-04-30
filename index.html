@@ -33,141 +33,117 @@
       background-image: radial-gradient(circle, rgba(255,109,0,.08) 1px, transparent 1px);
       background-size: 28px 28px; pointer-events: none;
     }
-    .glow-blob {
-      position: fixed; top: -120px; right: -120px; z-index: 0;
-      width: 480px; height: 480px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(255,109,0,.18) 0%, transparent 70%);
-      pointer-events: none;
-    }
     .panel {
       background: linear-gradient(145deg, rgba(22,34,70,.92), rgba(15,28,63,.95));
       border: 1px solid rgba(255,109,0,.15); backdrop-filter: blur(12px);
     }
-    #sn-wrap { position: relative; }
-    #sn-wrap::before {
-      content: ''; position: absolute; inset: -2px; border-radius: 12px; z-index: 0;
-      background: linear-gradient(135deg, #FF6D00, #FF8C00, #ffb347);
-      opacity: 0; transition: opacity .3s;
-    }
-    #sn-wrap:focus-within::before { opacity: 1; }
-    #sn-inner { position: relative; z-index: 1; background: #0f1c3f; border-radius: 10px; }
     .field {
       width: 100%; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1);
-      border-radius: 8px; color: #e8ecf5; padding: .6rem .9rem; font-size: .9rem;
-      transition: border-color .2s, box-shadow .2s; outline: none;
+      border-radius: 8px; color: #e8ecf5; padding: .6rem .9rem; font-size: .9rem; outline: none;
     }
-    .field:focus { border-color: rgba(255,109,0,.6); box-shadow: 0 0 0 3px rgba(255,109,0,.1); }
-    input[list]::-webkit-calendar-picker-indicator { display: none !important; }
-    #sn-field { background: rgba(255,255,255,.06); border: none; font-size: 1.15rem; font-family: 'JetBrains Mono', monospace; letter-spacing: .06em; padding: .75rem 1rem; border-radius: 10px; }
-    .field-label { font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: .35rem; }
-    .btn-add { background: linear-gradient(135deg, #FF6D00, #FF8C00); color: #fff; font-weight: 700; border-radius: 10px; padding: .75rem 1.5rem; width: 100%; transition: transform .15s, box-shadow .15s; box-shadow: 0 4px 20px rgba(255,109,0,.3); cursor: pointer; border: none; }
-    .btn-add:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(255,109,0,.45); }
-    .btn-save { background: linear-gradient(135deg, #162246, #1e2f5a); border: 2px solid #FF6D00; color: #FF6D00; font-weight: 700; border-radius: 12px; padding: .9rem 2rem; width: 100%; transition: all .2s; cursor: pointer; }
-    .btn-save:hover:not(:disabled) { background: #FF6D00; color: #fff; box-shadow: 0 6px 28px rgba(255,109,0,.4); }
-    .btn-save:disabled { opacity: .4; cursor: not-allowed; }
-    .data-table { border-collapse: collapse; width: 100%; }
-    .data-table th { background: rgba(255,109,0,.08); color: #FF6D00; font-size: .72rem; font-weight: 700; padding: .65rem .9rem; text-align: left; border-bottom: 1px solid rgba(255,109,0,.2); }
-    .data-table td { padding: .6rem .9rem; font-size: .85rem; color: #c8d0e8; border-bottom: 1px solid rgba(255,255,255,.05); }
-    .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; border-radius: 9999px; background: #FF6D00; color: #fff; font-size: .72rem; font-weight: 700; }
-    #toast { position: fixed; bottom: 2rem; right: 2rem; z-index: 999; background: rgba(22,34,70,.97); border: 1px solid #FF6D00; color: #e8ecf5; padding: .8rem 1.4rem; border-radius: 10px; opacity: 0; transform: translateY(120%); transition: all .3s; }
+    .field:focus { border-color: #FF6D00; box-shadow: 0 0 0 3px rgba(255,109,0,.1); }
+    
+    /* แก้ไขช่อง S/N ให้พิมพ์ง่ายและรองรับเครื่องยิง */
+    #sn-field { 
+      background: rgba(255,255,255,.08); 
+      border: 1px solid rgba(255,109,0,.3); 
+      font-size: 1.2rem; 
+      font-family: 'JetBrains Mono', monospace; 
+      color: #fff;
+    }
+    
+    .field-label { font-size: .75rem; font-weight: 600; color: rgba(255,255,255,.4); margin-bottom: .35rem; text-transform: uppercase; }
+    .btn-add { background: linear-gradient(135deg, #FF6D00, #FF8C00); color: #fff; font-weight: 700; border-radius: 10px; padding: .75rem; width: 100%; transition: all .2s; cursor: pointer; border: none; }
+    .btn-add:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(255,109,0,.4); }
+    .btn-save { background: transparent; border: 2px solid #FF6D00; color: #FF6D00; font-weight: 700; border-radius: 12px; padding: .9rem; width: 100%; transition: all .2s; }
+    .btn-save:hover:not(:disabled) { background: #FF6D00; color: #fff; }
+    .btn-save:disabled { opacity: .3; cursor: not-allowed; }
+    
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { background: rgba(255,109,0,.1); color: #FF6D00; font-size: .7rem; padding: .7rem; text-align: left; }
+    .data-table td { padding: .7rem; font-size: .85rem; border-bottom: 1px solid rgba(255,255,255,.05); }
+    
+    #toast { position: fixed; bottom: 2rem; right: 2rem; z-index: 999; background: #162246; border: 1px solid #FF6D00; color: #fff; padding: .8rem 1.5rem; border-radius: 10px; opacity: 0; transform: translateY(100%); transition: all .3s; }
     #toast.show { opacity: 1; transform: translateY(0); }
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,109,0,.3); border-radius: 10px; }
   </style>
 </head>
 <body class="font-sans min-h-screen text-white relative">
-  <div class="glow-blob"></div>
 
-  <!-- HEADER -->
   <header class="relative z-10 border-b border-white/5 bg-navy/60 backdrop-blur-md">
     <div class="max-w-screen-xl mx-auto px-4 sm:px-8 h-14 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-ember to-orange-300 flex items-center justify-center">
-          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/></svg>
-        </div>
-        <span class="text-sm font-bold uppercase">AdvancedPlus <span class="text-ember">Cloud</span></span>
+        <span class="text-sm font-bold uppercase tracking-widest">AdvancedPlus <span class="text-ember">Cloud</span></span>
       </div>
-
-      <!-- NAV BUTTONS -->
-      <!-- ค้นหาแถบ <nav> แล้วแก้เป็นแบบนี้ -->
       <nav class="flex gap-6">
-      <a href="index.html" class="text-xs font-bold uppercase text-ember border-b-2 border-ember pb-1">Inbound</a>
-      <a href="inventory.html" class="text-xs font-bold uppercase text-white/40 hover:text-white transition-colors">Dashboard</a>
+        <a href="index.html" class="text-xs font-bold uppercase text-ember border-b-2 border-ember pb-1">Inbound</a>
+        <a href="inventory.html" class="text-xs font-bold uppercase text-white/40 hover:text-white transition-colors">Dashboard</a>
       </nav>
-
-      <div class="hidden sm:flex items-center gap-2 bg-white/5 rounded-full px-3 py-1 border border-white/10 text-xs text-white/60">
-        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Warehouse
-      </div>
+      <div class="text-xs text-white/40 font-bold uppercase">Warehouse Mode</div>
     </div>
   </header>
 
   <main class="relative z-10 max-w-screen-xl mx-auto px-4 sm:px-8 py-6">
     <div class="mb-6 flex justify-between items-end">
       <div>
-        <p class="text-[10px] uppercase tracking-widest text-ember/60 font-bold mb-1">Inventory Management</p>
+        <p class="text-[10px] uppercase tracking-widest text-ember font-bold mb-1">Stock Control</p>
         <h1 class="text-2xl font-bold">บันทึกรับสินค้าเข้า</h1>
       </div>
-      <div class="text-[10px] text-white/30 uppercase font-bold tracking-widest" id="todayDate"></div>
+      <div class="text-[10px] text-white/30 font-mono" id="todayDate"></div>
     </div>
 
     <div class="grid gap-6" style="grid-template-columns: 380px 1fr;">
-      <!-- FORM -->
       <div class="panel rounded-2xl p-6 flex flex-col gap-4 h-fit">
         <div>
-          <div class="field-label">Model</div>
-          <input list="model-list" id="model" class="field" placeholder="เลือก Model..." autocomplete="off" />
+          <label class="field-label">Model</label>
+          <input list="model-list" id="model" class="field" placeholder="เลือกหรือพิมพ์ชื่อรุ่น..." />
           <datalist id="model-list"></datalist>
         </div>
 
         <div>
-          <div class="field-label">Serial Number (S/N)</div>
-          <div id="sn-wrap"><div id="sn-inner" class="p-px"><input id="sn-field" class="field" placeholder="สแกนที่นี่..." autocomplete="off" /></div></div>
+          <label class="field-label">Serial Number (S/N)</label>
+          <input id="sn-field" class="field" placeholder="สแกนหรือพิมพ์ S/N ที่นี่..." autocomplete="off" />
         </div>
 
         <div>
-          <div class="field-label">Supplier</div>
-          <input list="supplier-list" id="supplier" class="field" placeholder="เลือก Supplier..." autocomplete="off" />
+          <label class="field-label">Supplier</label>
+          <input list="supplier-list" id="supplier" class="field" placeholder="เลือก Supplier..." />
           <datalist id="supplier-list"></datalist>
         </div>
 
         <div>
-          <div class="field-label">Invoice No.</div>
-          <input id="invoice" class="field font-mono" placeholder="INV-XXXXX" autocomplete="off" />
+          <label class="field-label">Invoice No.</label>
+          <input id="invoice" class="field font-mono" placeholder="เลขที่ใบส่งของ..." />
         </div>
 
         <div>
-          <div class="field-label">หมายเหตุ</div>
+          <label class="field-label">หมายเหตุ</label>
           <textarea id="note" class="field resize-none" rows="2"></textarea>
         </div>
 
-        <button class="btn-add" onclick="addToStaged()">เพิ่มรายการ</button>
+        <button class="btn-add" onclick="addToStaged()">เพิ่มรายการ (Enter)</button>
       </div>
 
-      <!-- TABLE -->
       <div class="flex flex-col gap-4">
         <div class="panel rounded-2xl overflow-hidden flex flex-col flex-1">
           <div class="px-6 py-4 border-b border-white/5 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-              <h2 class="text-xs font-bold uppercase text-white/70">รายการรอพะบันทึก</h2>
-              <span class="badge" id="count-badge">0</span>
-            </div>
-            <button onclick="clearAll()" class="text-[10px] text-red-400 font-bold uppercase hover:underline">ล้างทั้งหมด</button>
+            <h2 class="text-xs font-bold uppercase text-white/50">รายการพักรอบันทึก <span id="count-badge" class="ml-2 text-ember">0</span></h2>
+            <button onclick="clearAll()" class="text-[10px] text-red-400 font-bold hover:underline uppercase">ล้างทั้งหมด</button>
           </div>
           <div class="overflow-auto max-h-[400px]">
             <table class="data-table">
-              <thead><tr><th>#</th><th>Model</th><th>S/N</th><th>Supplier</th><th>Invoice</th><th style="width:50px"></th></tr></thead>
+              <thead><tr><th>#</th><th>Model</th><th>S/N</th><th>Supplier</th><th>Invoice</th><th style="width:40px"></th></tr></thead>
               <tbody id="staged-tbody"></tbody>
             </table>
-            <div id="empty-state" class="py-20 text-center text-white/20 text-xs font-bold uppercase">รอสแกนสินค้า...</div>
+            <div id="empty-state" class="py-20 text-center text-white/10 text-xs font-bold uppercase">ยังไม่มีข้อมูล...</div>
           </div>
         </div>
 
         <div class="panel rounded-2xl px-6 py-4 flex items-center gap-6">
-          <div class="flex-1 flex gap-8">
-            <div><p class="text-[10px] uppercase text-white/30 font-bold">Total</p><p class="text-2xl font-bold" id="summary-count">0</p></div>
-            <div><p class="text-[10px] uppercase text-white/30 font-bold">Unique Models</p><p class="text-2xl font-bold" id="summary-models">0</p></div>
+          <div class="flex-1">
+            <p class="text-[10px] text-white/30 font-bold uppercase">Total Items</p>
+            <p class="text-2xl font-bold" id="summary-count">0</p>
           </div>
-          <button id="save-btn" class="btn-save sm:w-64" onclick="saveToFirebase()" disabled>บันทึกขึ้น CLOUD ✅</button>
+          <button id="save-btn" class="btn-save sm:w-64" onclick="saveToFirebase()" disabled>บันทึกขึ้นคลาวด์ ✅</button>
         </div>
       </div>
     </div>
@@ -192,82 +168,101 @@
     const db = getFirestore(app);
     let stagedData = [];
 
-    async function loadData() {
-      const snap = await getDoc(doc(db, "system_settings", "dropdowns"));
-      if (snap.exists()) {
-        const d = snap.data();
-        document.getElementById('model-list').innerHTML = d.models.map(m => `<option value="${m}">`).join('');
-        document.getElementById('supplier-list').innerHTML = d.suppliers.map(s => `<option value="${s}">`).join('');
-      }
+    // โหลดตัวเลือกจาก Firebase
+    async function loadConfig() {
+      try {
+        const snap = await getDoc(doc(db, "system_settings", "dropdowns"));
+        if (snap.exists()) {
+          const d = snap.data();
+          document.getElementById('model-list').innerHTML = d.models.map(m => `<option value="${m}">`).join('');
+          document.getElementById('supplier-list').innerHTML = d.suppliers.map(s => `<option value="${s}">`).join('');
+        }
+      } catch (e) { console.error(e); }
     }
-    loadData();
+    loadConfig();
 
+    // ฟังก์ชันเพิ่มลงตารางพัก
     window.addToStaged = () => {
-      const m = document.getElementById('model').value;
-      const s = document.getElementById('sn-field').value;
-      const sp = document.getElementById('supplier').value;
-      const inv = document.getElementById('invoice').value;
-      const nt = document.getElementById('note').value;
-      if(!s) return showToast("⚠️ ระบุ S/N");
-      stagedData.push({ id: Date.now(), model: m || '-', sn: s, supplier: sp || '-', invoice: inv || '-', note: nt });
-      document.getElementById('sn-field').value = '';
-      document.getElementById('sn-field').focus();
-      render(); showToast("✅ เพิ่มแล้ว");
+      const snF = document.getElementById('sn-field');
+      const sn = snF.value.trim();
+      if(!sn) { showToast("⚠️ กรุณาใส่ S/N"); snF.focus(); return; }
+      
+      if(stagedData.some(x => x.sn === sn)) {
+        showToast("🔁 S/N นี้มีอยู่แล้ว"); snF.value = ''; snF.focus(); return;
+      }
+
+      stagedData.push({
+        id: Date.now(),
+        model: document.getElementById('model').value || '-',
+        sn: sn,
+        supplier: document.getElementById('supplier').value || '-',
+        invoice: document.getElementById('invoice').value || '-',
+        note: document.getElementById('note').value || ''
+      });
+
+      snF.value = '';
+      snF.focus();
+      render();
     };
 
-    async function saveToFirebase() {
-      if (!stagedData.length) return;
-      
+    // บันทึกขึ้น Firebase (โครงสร้าง 9 ช่อง)
+    window.saveToFirebase = async () => {
       const btn = document.getElementById('save-btn');
       btn.disabled = true;
-      showToast('⏳ กำลังบันทึกข้อมูล...');
+      showToast("⏳ กำลังบันทึกข้อมูล...");
 
       try {
-        // วนลูปบันทึกทีละรายการเพื่อให้ได้โครงสร้างตามที่พี่ต้องการเป๊ะๆ
-        const batch = stagedData.map((item, index) => {
+        const promises = stagedData.map(item => {
           return addDoc(collection(db, "inbound_stock"), {
-            date_in: serverTimestamp(),       // Date In (วันที่รับเข้า)
-            order_number: "",                 // ลำดับ (เว้นไว้เติมภายหลัง หรือใช้ระบบรันอัตโนมัติ)
-            model: item.model,                // ชื่อสินค้า/รุ่น (Model)
-            sn: item.sn,                      // Serial Number (S/N)
-            duration: 0,                      // ระยะเวลา (วัน) (ค่าเริ่มต้นเป็น 0)
-            last_updated: serverTimestamp(),  // Last Updated
-            supplier: item.supplier,          // Supplier
-            invoice: item.invoice,            // เลขที่ใบส่งของ
-            note: item.note                   // หมายเหตุ
+            date_in: serverTimestamp(),
+            order_number: "", 
+            model: item.model,
+            sn: item.sn,
+            duration: 0,
+            last_updated: serverTimestamp(),
+            supplier: item.supplier,
+            invoice: item.invoice,
+            note: item.note
           });
         });
 
-        await Promise.all(batch);
-
-        showToast('🔥 บันทึกข้อมูลครบทุกช่องสำเร็จ!');
-        stagedData = []; 
-        renderTable(); 
-        updateSummary();
-        
-      } catch (error) {
-        console.error("Error saving data: ", error);
-        showToast('❌ เกิดข้อผิดพลาด');
+        await Promise.all(promises);
+        showToast("🔥 บันทึกเข้าฐานข้อมูลสำเร็จ!");
+        stagedData = [];
+        render();
+      } catch (e) {
+        showToast("❌ เกิดข้อผิดพลาด!");
         btn.disabled = false;
       }
-    }
+    };
 
     function render() {
       const tb = document.getElementById('staged-tbody');
       const em = document.getElementById('empty-state');
       em.style.display = stagedData.length ? 'none' : 'block';
-      tb.innerHTML = stagedData.map((r, i) => `<tr><td class="text-white/20 font-mono text-[10px]">${i+1}</td><td>${r.model}</td><td class="font-mono text-ember font-bold">${r.sn}</td><td>${r.supplier}</td><td class="font-mono text-[10px] opacity-40">${r.invoice}</td><td><button onclick="del(${r.id})" class="text-red-400">✕</button></td></tr>`).join('');
+      tb.innerHTML = stagedData.map((r, i) => `
+        <tr>
+          <td class="text-white/20 font-mono text-[10px]">${i+1}</td>
+          <td>${r.model}</td>
+          <td class="font-mono text-ember font-bold">${r.sn}</td>
+          <td>${r.supplier}</td>
+          <td class="font-mono text-[10px] opacity-40">${r.invoice}</td>
+          <td><button onclick="del(${r.id})" class="text-red-400">✕</button></td>
+        </tr>`).join('');
+      
       document.getElementById('count-badge').textContent = stagedData.length;
       document.getElementById('summary-count').textContent = stagedData.length;
-      document.getElementById('summary-models').textContent = new Set(stagedData.map(x => x.model)).size;
       document.getElementById('save-btn').disabled = !stagedData.length;
     }
 
     window.del = (id) => { stagedData = stagedData.filter(x => x.id !== id); render(); };
-    window.clearAll = () => { if(confirm("ลบหมด?")) { stagedData = []; render(); } };
-    function showToast(m) { const t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
-    document.getElementById('sn-field').onkeydown = e => e.key === 'Enter' && window.addToStaged();
-    document.getElementById('todayDate').textContent = new Date().toLocaleDateString('th-TH');
+    window.clearAll = () => { if(confirm("ลบทั้งหมด?")) { stagedData = []; render(); } };
+    function showToast(m) { const t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
+    
+    // ดักจับ Enter สำหรับมือพิมพ์และเครื่องยิง
+    document.getElementById('sn-field').onkeydown = e => { if(e.key === 'Enter') window.addToStaged(); };
+    document.getElementById('todayDate').textContent = new Date().toLocaleDateString('th-TH', { day:'numeric', month:'long', year:'numeric' });
+    render();
   </script>
 </body>
 </html>
