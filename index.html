@@ -383,25 +383,20 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // ========================================================
-    // 📍 จุดที่ 1: ใส่ตั้งค่า Firebase ของคุณตรงนี้
-    // ========================================================
+
     const firebaseConfig = {
-      apiKey: "ใส่_API_KEY_ของคุณตรงนี้", 
+      apiKey: "AIzaSyDKnlB-dWr60Aanaa5g9Av7NdB9pIutcnw",
       authDomain: "advancedplus-stock.firebaseapp.com",
       projectId: "advancedplus-stock",
-      storageBucket: "advancedplus-stock.appspot.com",
+      storageBucket: "advancedplus-stock.firebasestorage.app",
       messagingSenderId: "406022848223",
-      appId: "ใส่_APP_ID_ของคุณตรงนี้"
+      appId: "1:406022848223:web:0d625edcb7720d1d6db36a"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // ========================================================
-    // 📍 จุดที่ 2: ใส่ URL Web App จาก Google Apps Script
-    // ========================================================
-    const APPS_SCRIPT_URL = "วาง_URL_เว็บแอป_ของคุณที่นี่"; 
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwglmnFq7lIXBbOTjLQ839sap7sJBqxCRe8shob3fUU9DwFND3P8knZ6xq4tAsjuN1f/exec"; 
 
     // โหลดข้อมูล Model และ Supplier อัตโนมัติเมื่อเปิดเว็บ
     async function loadInitialData() {
