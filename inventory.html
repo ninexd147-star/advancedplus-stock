@@ -114,6 +114,23 @@
       .page-wrap { margin-left: 0; }
     }
   </style>
+
+  <!-- Firebase App (the core Firebase SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <!-- Firebase Firestore -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script>
 </head>
 <body>
 
@@ -229,10 +246,44 @@
     let masterData = [];
 
     // TODO: เชื่อมต่อ Firebase ที่นี่
-    window.loadData = function() {
-      document.getElementById('inventory-tbody').innerHTML =
-        '<tr><td colspan="9" style="text-align:center;padding:60px;color:#c4c4cc;font-size:.85rem">🔌 รอการเชื่อมต่อ Firebase…</td></tr>';
-      document.getElementById('last-updated').textContent = 'ยังไม่ได้เชื่อมต่อ';
+    window.loadData = async function() {
+      const tbody = document.getElementById('inventory-tbody');
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:60px;color:#c4c4cc;font-size:.85rem">⏳ กำลังดึงข้อมูลจาก Cloud...</td></tr>';
+
+      try {
+        const snapshot = await db.collection("inventory").orderBy("timestamp", "desc").get();
+        masterData = [];
+
+        const now = new Date();
+
+        snapshot.forEach(doc => {
+          const data = doc.data();
+
+          let duration = 0;
+          if (data.timestamp) {
+            const docDate = data.timestamp.toDate();
+            duration = Math.floor((now - docDate) / (1000 * 60 * 60 * 24));
+          }
+
+          masterData.push({
+            date_in: data.date_in || '-',
+            model: data.model || '-',
+            sn: data.sn || doc.id,
+            duration: duration,
+            last_updated: data.last_updated || '-',
+            supplier: data.supplier || '-',
+            invoice: data.invoice || '-',
+            note: data.note || '-'
+          });
+        });
+
+        renderTable(masterData);
+        document.getElementById('last-updated').textContent = new Date().toLocaleTimeString('th-TH');
+
+      } catch (error) {
+        console.error("Error loading:", error);
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:60px;color:#ef4444;font-size:.85rem">❌ เชื่อมต่อล้มเหลว: ${error.message}</td></tr>`;
+      }
     };
 
     document.getElementById('search-input').addEventListener('input', e => {
