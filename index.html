@@ -215,14 +215,42 @@
       render(); showToast("✅ เพิ่มแล้ว");
     };
 
-    window.saveToFirebase = async () => {
+    async function saveToFirebase() {
+      if (!stagedData.length) return;
+      
       const btn = document.getElementById('save-btn');
-      btn.disabled = true; showToast("⏳ กำลังบันทึก...");
+      btn.disabled = true;
+      showToast('⏳ กำลังบันทึกข้อมูล...');
+
       try {
-        await addDoc(collection(db, "inbound_stock"), { timestamp: serverTimestamp(), items: stagedData });
-        showToast("🔥 สำเร็จ!"); stagedData = []; render();
-      } catch (e) { showToast("❌ พลาด!"); btn.disabled = false; }
-    };
+        // วนลูปบันทึกทีละรายการเพื่อให้ได้โครงสร้างตามที่พี่ต้องการเป๊ะๆ
+        const batch = stagedData.map((item, index) => {
+          return addDoc(collection(db, "inbound_stock"), {
+            date_in: serverTimestamp(),       // Date In (วันที่รับเข้า)
+            order_number: "",                 // ลำดับ (เว้นไว้เติมภายหลัง หรือใช้ระบบรันอัตโนมัติ)
+            model: item.model,                // ชื่อสินค้า/รุ่น (Model)
+            sn: item.sn,                      // Serial Number (S/N)
+            duration: 0,                      // ระยะเวลา (วัน) (ค่าเริ่มต้นเป็น 0)
+            last_updated: serverTimestamp(),  // Last Updated
+            supplier: item.supplier,          // Supplier
+            invoice: item.invoice,            // เลขที่ใบส่งของ
+            note: item.note                   // หมายเหตุ
+          });
+        });
+
+        await Promise.all(batch);
+
+        showToast('🔥 บันทึกข้อมูลครบทุกช่องสำเร็จ!');
+        stagedData = []; 
+        renderTable(); 
+        updateSummary();
+        
+      } catch (error) {
+        console.error("Error saving data: ", error);
+        showToast('❌ เกิดข้อผิดพลาด');
+        btn.disabled = false;
+      }
+    }
 
     function render() {
       const tb = document.getElementById('staged-tbody');
