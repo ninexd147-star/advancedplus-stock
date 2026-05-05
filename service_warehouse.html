@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>คลังบริการ – AdvancedPlus Cloud</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script>
+    firebase.initializeApp({apiKey:"AIzaSyDKnlB-dWr60Aanaa5g9Av7NdB9pIutcnw",authDomain:"advancedplus-stock.firebaseapp.com",projectId:"advancedplus-stock",storageBucket:"advancedplus-stock.firebasestorage.app",messagingSenderId:"406022848223",appId:"1:406022848223:web:0d625edcb7720d1d6db36a"});
+    const db=firebase.firestore();
+  </script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;}
+    body{background:#f5f5f7;font-family:'IBM Plex Sans Thai',sans-serif;color:#1a1a2e;margin:0;}
+    .sidebar{width:220px;background:#fff;border-right:1px solid #ececec;display:flex;flex-direction:column;padding:28px 0;position:fixed;top:0;left:0;bottom:0;z-index:40;}
+    .sidebar-logo{padding:0 20px 28px;border-bottom:1px solid #f0f0f0;margin-bottom:16px;}
+    .sidebar-logo .brand{font-size:.85rem;font-weight:800;letter-spacing:.04em;color:#1a1a2e;}
+    .sidebar-logo .brand span{color:#ff5722;}
+    .sidebar-logo .sub{font-size:.65rem;color:#aaa;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-top:2px;}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:.82rem;font-weight:600;color:#9ca3af;text-decoration:none;transition:color .15s,background .15s;position:relative;}
+    .nav-item.active{color:#ff5722;background:#fff4f1;}
+    .nav-item.active::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:3px;background:#ff5722;border-radius:0 3px 3px 0;}
+    .nav-item:hover:not(.active){color:#374151;background:#fafafa;}
+    .nav-item svg{width:16px;height:16px;flex-shrink:0;}
+    .nav-section{font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#d1d5db;padding:14px 20px 6px;}
+    .sidebar-footer{margin-top:auto;padding:16px 20px 0;border-top:1px solid #f0f0f0;}
+    .user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#ff5722,#ff7043);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.75rem;font-weight:700;flex-shrink:0;}
+    .page-wrap{margin-left:220px;min-height:100vh;}
+    .page-header{background:#fff;border-bottom:1px solid #ececec;padding:18px 28px;}
+    .page-subtitle{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#ff5722;margin-bottom:3px;}
+    .page-title{font-size:1.3rem;font-weight:800;}
+    .content{padding:24px 28px;}
+    .card{background:#fff;border:1px solid #ececec;border-radius:16px;box-shadow:0 2px 10px rgba(0,0,0,.04);overflow:hidden;margin-bottom:20px;}
+    .card-head{padding:14px 18px;border-bottom:1px solid #f3f3f5;display:flex;align-items:center;gap:8px;}
+    .cbar{width:3px;height:18px;border-radius:99px;flex-shrink:0;}
+    .card-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#6b7280;}
+    .card-body{padding:16px 18px;}
+    .field{width:100%;background:#fafafa;border:1.5px solid #e8e8e8;border-radius:10px;color:#1a1a2e;padding:10px 14px;font-size:.88rem;font-family:inherit;outline:none;transition:border-color .2s;}
+    .field:focus{background:#fff;border-color:#ff5722;box-shadow:0 0 0 3px rgba(255,87,34,.1);}
+    .field::placeholder{color:#c4c4cc;}
+    .form-group{margin-bottom:12px;display:flex;gap:12px;}
+    .btn-add{background:linear-gradient(135deg,#ff5722,#ff7043);color:#fff;font-weight:700;font-size:.82rem;border:none;border-radius:9px;padding:9px 16px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;transition:opacity .15s;white-space:nowrap;}
+    .btn-add:hover{opacity:.88;}
+    .staging-table{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:12px;}
+    .staging-table th{background:#fff4f1;color:#bf360c;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:8px;border-bottom:2px solid #ffccbc;text-align:left;}
+    .staging-table td{padding:8px;border-bottom:1px solid #f3f3f5;color:#374151;}
+    .sn-col{font-family:'JetBrains Mono',monospace;color:#e64a19;font-weight:700;}
+    .btn-save{width:100%;background:linear-gradient(135deg,#ff5722,#ff7043);color:#fff;font-weight:700;font-size:.88rem;border:none;border-radius:10px;padding:11px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;box-shadow:0 4px 14px rgba(255,87,34,.3);transition:opacity .15s;}
+    .btn-save:hover{opacity:.9;}
+    /* Table */
+    .data-table{width:100%;border-collapse:collapse;}
+    .data-table th{background:#fff4f1;color:#bf360c;font-size:.63rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px;text-align:left;border-bottom:2px solid #ffccbc;}
+    .data-table td{padding:9px 10px;border-bottom:1px solid #f3f3f5;font-size:.8rem;}
+    .data-table tr:hover{background:#fffaf8;}
+    .stats-strip{display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap;}
+    .stat-card{flex:1;min-width:140px;background:#fafafa;border:1px solid #ececec;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:4px;}
+    .stat-label{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#9ca3af;}
+    .stat-value{font-size:1.6rem;font-weight:800;color:#1a1a2e;}
+    .stat-card.accent{background:#fff4f1;border-color:#ffccbc;}
+    .stat-card.accent .stat-value{color:#ff5722;}
+    /* Mobile */
+    @media(max-width:900px){.sidebar{display:none;}.page-wrap{margin-left:0;padding-bottom:72px;}.content{padding:16px;}}
+    .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:50;background:#fff;border-top:1px solid #ececec;box-shadow:0 -4px 20px rgba(0,0,0,.08);padding:8px 4px calc(8px + env(safe-area-inset-bottom));justify-content:space-around;align-items:center;}
+    .bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 12px;border-radius:10px;text-decoration:none;color:#9ca3af;font-size:.6rem;font-weight:700;min-width:52px;border:none;background:none;cursor:pointer;font-family:inherit;}
+    .bn-item.active{color:#ff5722;background:#fff4f1;}
+    .bn-item svg{width:20px;height:20px;}
+    .drawer-overlay{display:none;position:fixed;inset:0;z-index:48;background:rgba(0,0,0,.35);}
+    .drawer-overlay.open{display:block;}
+    .drawer{position:fixed;bottom:0;left:0;right:0;z-index:49;background:#fff;border-radius:20px 20px 0 0;padding:0 0 calc(80px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .3s;box-shadow:0 -8px 32px rgba(0,0,0,.12);}
+    .drawer.open{transform:translateY(0);}
+    .drawer-handle{width:36px;height:4px;background:#e8e8e8;border-radius:99px;margin:12px auto 8px;}
+    .drawer-title{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#9ca3af;padding:10px 20px 6px;}
+    .drawer-item{display:flex;align-items:center;gap:12px;padding:13px 20px;font-size:.88rem;font-weight:600;color:#374151;text-decoration:none;border:none;background:none;width:100%;cursor:pointer;font-family:inherit;}
+    .drawer-item:hover{background:#fafafa;}
+    .drawer-item.active{color:#ff5722;background:#fff4f1;}
+    .drawer-item svg{width:18px;height:18px;flex-shrink:0;}
+    .drawer-sep{height:1px;background:#f3f3f5;margin:4px 0;}
+    @media(max-width:900px){.bottom-nav{display:flex;}}
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="brand">AdvancedPlus <span>Cloud</span></div><div class="sub">Inventory System</div></div>
+    <div class="nav-section">ภาพรวม</div>
+    <a href="dashboard.html" class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Dashboard</a>
+    <div class="nav-section">คลังสินค้า</div>
+    <a href="index.html" class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>คลังหลัก</a>
+    <a href="inventory.html" class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/></svg>ดูคลังหลัก</a>
+    <a href="service_warehouse.html" class="nav-item active"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0v-5a1 1 0 011-1h2a1 1 0 011 1v5"/></svg>คลังบริการ</a>
+    <a href="online_warehouse.html" class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>คลังออนไลน์</a>
+    <a href="reserve_warehouse.html" class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>คลังคิดตั้ง</a>
+    <div class="nav-section">การขาย</div>
+    <a href="outbound.html" class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>สินค้าขายออก</a>
+    <a href="sold.html" class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>รายการขายออก</a>
+    <div class="nav-section">การเคลม</div>
+    <a href="claim.html" class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>สินค้าเคลม</a>
+    <a href="claim_list.html" class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>รายการเคลม</a>
+    <div class="nav-section">เครื่องมือ</div>
+    <a href="tracker.html" class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>S/N Tracker</a>
+    <a href="invoice_lookup.html" class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Invoice Lookup</a>
+    <a href="export.html" class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Export รายงาน</a>
+    <a href="settings.html" class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>ตั้งค่า</a>
+    <div class="sidebar-footer">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;cursor:pointer" onclick="openProfileEditor()" title="คลิกเพื่อเปลี่ยนรูปโปรไฟล์">
+        <img id="user-avatar-img" src="" alt="avatar" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:#fff4f1;border:1.5px solid #ffccbc;display:none"/>
+        <div class="user-avatar" id="user-avatar-icon" style="width:32px;height:32px"><span id="user-initials" style="font-size:.9rem">?</span></div>
+        <div style="overflow:hidden"><div id="user-email" style="font-size:.72rem;font-weight:600;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px">กำลังโหลด…</div><div style="font-size:.62rem;color:#9ca3af">Staff · Active</div></div>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:8px">
+        <button onclick="openProfileEditor()" style="flex:1;background:#fff4f1;border:1px solid #ffccbc;border-radius:8px;padding:5px 10px;font-size:.65rem;font-weight:700;color:#ff5722;cursor:pointer;font-family:inherit">รูป</button>
+        <button onclick="doLogout()" style="flex:1;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:5px 10px;font-size:.65rem;font-weight:700;color:#dc2626;cursor:pointer;font-family:inherit">ออก</button>
+      </div>
+      <div id="profile-upload" style="display:none;margin-top:10px;padding:10px;background:#fafafa;border-radius:8px;border:1px solid #e8e8e8">
+        <input type="file" id="avatar-file" accept="image/*" onchange="uploadProfilePicture()" style="width:100%;font-size:.7rem;margin-bottom:6px"/>
+        <button onclick="closeProfileEditor()" style="width:100%;background:#e8e8e8;border:none;border-radius:6px;padding:5px;font-size:.65rem;font-weight:600;color:#6b7280;cursor:pointer;font-family:inherit">ยกเลิก</button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="page-wrap">
+    <div class="page-header">
+      <div><div class="page-subtitle">คลังสินค้า · Service Warehouse</div><div class="page-title">คลังบริการ (Service)</div></div>
+    </div>
+
+    <div class="content">
+      <!-- Stats -->
+      <div class="stats-strip">
+        <div class="stat-card accent"><div class="stat-label">รวมสินค้าในคลัง</div><div class="stat-value" id="stat-total">0</div></div>
+        <div class="stat-card"><div class="stat-label">รุ่นสินค้า</div><div class="stat-value" id="stat-models">0</div></div>
+        <div class="stat-card"><div class="stat-label">ผู้ขาย</div><div class="stat-value" id="stat-suppliers">0</div></div>
+      </div>
+
+      <!-- Add Stock Form -->
+      <div class="card">
+        <div class="card-head"><div class="cbar" style="background:#ff5722"></div><span class="card-title">เพิ่มสินค้าเข้าคลังบริการ</span></div>
+        <div class="card-body">
+          <div class="form-group">
+            <input id="model-input" class="field" placeholder="Model / รุ่น" style="flex:1"/>
+            <input id="sn-input" class="field" placeholder="Serial Number (S/N)" style="flex:2;font-family:'JetBrains Mono',monospace"/>
+            <button class="btn-add" onclick="addStaging()"><svg style="width:14px;height:14px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>เพิ่ม</button>
+          </div>
+          <div class="form-group">
+            <input id="supplier-input" class="field" placeholder="Supplier / ผู้ขาย" style="flex:1"/>
+            <input id="invoice-input" class="field" placeholder="Invoice" style="flex:1;font-family:'JetBrains Mono',monospace"/>
+          </div>
+          <textarea id="note-input" class="field" placeholder="หมายเหตุ" style="height:60px;resize:none"></textarea>
+
+          <table class="staging-table" id="staging-table" style="display:none">
+            <thead><tr><th>ลำดับ</th><th>Model</th><th>S/N</th><th>ลบ</th></tr></thead>
+            <tbody id="staging-body"></tbody>
+          </table>
+
+          <button class="btn-save" onclick="saveToCloudService()"><svg style="width:15px;height:15px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>บันทึกขึ้น Cloud</button>
+        </div>
+      </div>
+
+      <!-- Inventory List -->
+      <div class="card">
+        <div class="card-head"><div class="cbar" style="background:#16a34a"></div><span class="card-title">สินค้าในคลังบริการ</span></div>
+        <div class="card-body">
+          <div style="overflow:auto">
+            <table class="data-table">
+              <thead><tr><th>วันที่รับเข้า</th><th>ลำดับ</th><th>Model</th><th>S/N</th><th>อายุ</th><th>Supplier</th><th>Invoice</th></tr></thead>
+              <tbody id="inventory-body"><tr><td colspan="7" style="text-align:center;padding:32px;color:#c4c4cc">⏳ กำลังโหลด…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV + DRAWER -->
+  <nav class="bottom-nav">
+    <a href="dashboard.html" class="bn-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Dashboard</a>
+    <a href="index.html" class="bn-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>รับเข้า</a>
+    <a href="inventory.html" class="bn-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/></svg>คลัง</a>
+    <a href="outbound.html" class="bn-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>ขายออก</a>
+    <button class="bn-item active" onclick="toggleDrawer()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>เพิ่มเติม</button>
+  </nav>
+  <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-handle"></div>
+    <div class="drawer-title">การขาย</div>
+    <a href="sold.html" class="drawer-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>รายการขายออก</a>
+    <div class="drawer-sep"></div>
+    <div class="drawer-title">การเคลม</div>
+    <a href="claim.html" class="drawer-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>สินค้าเคลม</a>
+    <a href="claim_list.html" class="drawer-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>รายการเคลม</a>
+    <div class="drawer-sep"></div>
+    <div class="drawer-title">เครื่องมือ</div>
+    <a href="tracker.html" class="drawer-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>S/N Tracker</a>
+    <a href="invoice_lookup.html" class="drawer-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Invoice Lookup</a>
+    <a href="export.html" class="drawer-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Export รายงาน</a>
+    <a href="settings.html" class="drawer-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>ตั้งค่า</a>
+    <div class="drawer-sep"></div>
+    <button class="drawer-item" onclick="doLogout()" style="color:#dc2626"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>ออกจากระบบ</button>
+  </div>
+
+  <script>
+    const WAREHOUSE_TYPE = 'service';
+    const INVENTORY_COL = 'inventory_service';
+    let stagingData = [];
+
+    async function loadInventory() {
+      try {
+        const snap = await db.collection(INVENTORY_COL).orderBy('date_in', 'desc').get();
+        const tbody = document.getElementById('inventory-body');
+        const data = snap.docs.map(d => ({id:d.id, ...d.data()}));
+        
+        if (snap.empty) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:#c4c4cc">ไม่มีสินค้าในคลังบริการ</td></tr>';
+          return;
+        }
+
+        const models = new Set(), suppliers = new Set();
+        tbody.innerHTML = data.map((r, i) => {
+          models.add(r.model);
+          suppliers.add(r.supplier);
+          const daysAgo = Math.floor((Date.now() - (r.date_in ? new Date(r.date_in).getTime() : 0)) / 86400000);
+          let ageTag = '🟢';
+          if (daysAgo > 90) ageTag = '🔴';
+          else if (daysAgo > 30) ageTag = '🟡';
+          return `<tr><td>${r.date_in||'-'}</td><td>${i+1}</td><td>${esc(r.model||'-')}</td><td style="font-family:'JetBrains Mono',monospace;color:#e64a19;font-weight:700">${esc(r.sn||'-')}</td><td>${ageTag} ${daysAgo}d</td><td>${esc(r.supplier||'-')}</td><td style="font-family:'JetBrains Mono',monospace">${esc(r.invoice||'-')}</td></tr>`;
+        }).join('');
+
+        document.getElementById('stat-total').textContent = data.length;
+        document.getElementById('stat-models').textContent = models.size;
+        document.getElementById('stat-suppliers').textContent = suppliers.size;
+      } catch(e) {
+        console.error(e);
+      }
+    }
+
+    function addStaging() {
+      const model = document.getElementById('model-input').value.trim();
+      const sn = document.getElementById('sn-input').value.trim();
+      if (!model || !sn) return;
+      stagingData.push({model, sn});
+      renderStaging();
+      document.getElementById('model-input').value = '';
+      document.getElementById('sn-input').value = '';
+      document.getElementById('sn-input').focus();
+    }
+
+    function renderStaging() {
+      const table = document.getElementById('staging-table');
+      const tbody = document.getElementById('staging-body');
+      if (stagingData.length === 0) {
+        table.style.display = 'none';
+        tbody.innerHTML = '';
+        return;
+      }
+      table.style.display = 'table';
+      tbody.innerHTML = stagingData.map((r, i) => `<tr><td>${i+1}</td><td>${esc(r.model)}</td><td class="sn-col">${esc(r.sn)}</td><td><button onclick="removeStaging(${i})" style="background:#fef2f2;color:#dc2626;border:none;border-radius:4px;padding:3px 8px;font-size:.7rem;cursor:pointer">ลบ</button></td></tr>`).join('');
+    }
+
+    function removeStaging(i) {
+      stagingData.splice(i, 1);
+      renderStaging();
+    }
+
+    async function saveToCloudService() {
+      if (stagingData.length === 0) { alert('ยังไม่มีสินค้า'); return; }
+      const supplier = document.getElementById('supplier-input').value.trim() || 'ไม่ระบุ';
+      const invoice = document.getElementById('invoice-input').value.trim() || '';
+      const note = document.getElementById('note-input').value.trim() || '';
+      const dateIn = new Date().toISOString().slice(0, 10);
+
+      try {
+        const batch = db.batch();
+        stagingData.forEach(item => {
+          const ref = db.collection(INVENTORY_COL).doc();
+          batch.set(ref, {
+            date_in: dateIn,
+            model: item.model,
+            sn: item.sn,
+            supplier,
+            invoice,
+            note,
+            warehouse: WAREHOUSE_TYPE,
+            last_updated: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        });
+        await batch.commit();
+        alert('✅ บันทึก ' + stagingData.length + ' รายการสำเร็จ');
+        stagingData = [];
+        renderStaging();
+        document.getElementById('supplier-input').value = '';
+        document.getElementById('invoice-input').value = '';
+        document.getElementById('note-input').value = '';
+        loadInventory();
+      } catch(e) {
+        alert('❌ ' + e.message);
+      }
+    }
+
+    document.getElementById('sn-input').addEventListener('keydown', e => { if(e.key==='Enter') addStaging(); });
+
+    function toggleDrawer() {
+      const d = document.getElementById('drawer');
+      const o = document.getElementById('drawer-overlay');
+      if (d) d.classList.toggle('open');
+      if (o) o.classList.toggle('open');
+    }
+    function closeDrawer() {
+      const d = document.getElementById('drawer');
+      const o = document.getElementById('drawer-overlay');
+      if (d) d.classList.remove('open');
+      if (o) o.classList.remove('open');
+    }
+
+    function openProfileEditor() {
+      document.getElementById('profile-upload').style.display = 'block';
+      document.getElementById('avatar-file').click();
+    }
+    function closeProfileEditor() {
+      document.getElementById('profile-upload').style.display = 'none';
+      document.getElementById('avatar-file').value = '';
+    }
+    async function uploadProfilePicture() {
+      const file = document.getElementById('avatar-file').files[0];
+      if (!file) return;
+      const user = firebase.auth().currentUser;
+      if (!user) return;
+      try {
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+          const base64 = e.target.result;
+          if (base64.length > 1000000) { alert('รูปภาพใหญ่เกินไป'); return; }
+          await db.collection("users").doc(user.uid).set({email:user.email, profilePictureUrl:base64, updatedAt:firebase.firestore.FieldValue.serverTimestamp()}, {merge:true});
+          document.getElementById('user-avatar-img').src = base64;
+          document.getElementById('user-avatar-img').style.display = 'block';
+          if (document.getElementById('user-avatar-icon')) document.getElementById('user-avatar-icon').style.display = 'none';
+          closeProfileEditor();
+        };
+        reader.readAsDataURL(file);
+      } catch (err) {
+        alert('❌ ' + err.message);
+      }
+    }
+    function doLogout() {
+      firebase.auth().signOut().then(() => {window.location.href='login.html';});
+    }
+    function md5(str) {
+      let hash = 0;
+      if (str.length === 0) return hash.toString(16);
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      return Math.abs(hash).toString(16);
+    }
+    function loadUserProfile() {
+      firebase.auth().onAuthStateChanged(async function(user) {
+        if (!user) { window.location.href='login.html'; return; }
+        const email = user.email;
+        const emailEl = document.getElementById('user-email');
+        const initialsEl = document.getElementById('user-initials');
+        const imgEl = document.getElementById('user-avatar-img');
+        const iconEl = document.getElementById('user-avatar-icon');
+        if (emailEl) emailEl.textContent = email;
+        const initials = email.substring(0,2).toUpperCase();
+        if (initialsEl) initialsEl.textContent = initials;
+        try {
+          const userDoc = await db.collection("users").doc(user.uid).get();
+          if (userDoc.exists && userDoc.data().profilePictureUrl) {
+            const url = userDoc.data().profilePictureUrl;
+            if (imgEl) { imgEl.src = url; imgEl.style.display = 'block'; if (iconEl) iconEl.style.display = 'none'; }
+            return;
+          }
+        } catch (e) { console.error(e); }
+        const hash = md5(email.toLowerCase());
+        const gravatarUrl = `https://www.gravatar.com/avatar/${hash}?d=initials&s=32`;
+        if (imgEl) { imgEl.src = gravatarUrl; imgEl.style.display = 'block'; if (iconEl) iconEl.style.display = 'none'; }
+      });
+    }
+    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { loadUserProfile(); loadInventory(); }); } else { loadUserProfile(); loadInventory(); }
+  </script>
+</body>
+</html>
