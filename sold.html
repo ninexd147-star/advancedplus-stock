@@ -295,19 +295,30 @@
       รายการเคลม
     </a>
     <div class="sidebar-footer">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <div class="user-avatar">
-          <svg style="width:15px;height:15px" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;cursor:pointer" onclick="openProfileEditor()" title="คลิกเพื่อเปลี่ยนรูปโปรไฟล์">
+        <img id="user-avatar-img" src="" alt="avatar" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:#fff4f1;border:1.5px solid #ffccbc;display:none"/>
+        <div class="user-avatar" id="user-avatar-icon" style="width:32px;height:32px">
+          <span id="user-initials" style="font-size:.9rem">?</span>
         </div>
         <div style="overflow:hidden">
           <div id="user-email" style="font-size:.72rem;font-weight:600;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px">กำลังโหลด…</div>
           <div style="font-size:.62rem;color:#9ca3af">Staff · Active</div>
         </div>
       </div>
-      <button onclick="doLogout()" style="width:100%;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:7px 12px;font-size:.75rem;font-weight:700;color:#dc2626;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .15s" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
-        <svg style="width:13px;height:13px" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-        ออกจากระบบ
-      </button>
+      <div style="display:flex;gap:6px;margin-bottom:8px" id="profile-buttons">
+        <button onclick="openProfileEditor()" style="flex:1;background:#fff4f1;border:1px solid #ffccbc;border-radius:8px;padding:5px 10px;font-size:.65rem;font-weight:700;color:#ff5722;cursor:pointer;font-family:inherit;transition:background .15s" onmouseover="this.style.background='#ffe8d8'" onmouseout="this.style.background='#fff4f1'">
+          <svg style="width:11px;height:11px;display:inline-block;margin-right:3px" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          รูป
+        </button>
+        <button onclick="doLogout()" style="flex:1;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:5px 10px;font-size:.65rem;font-weight:700;color:#dc2626;cursor:pointer;font-family:inherit;transition:background .15s" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
+          <svg style="width:11px;height:11px;display:inline-block;margin-right:3px" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          ออก
+        </button>
+      </div>
+      <div id="profile-upload" style="display:none;margin-top:10px;padding:10px;background:#fafafa;border-radius:8px;border:1px solid #e8e8e8">
+        <input type="file" id="avatar-file" accept="image/*" onchange="uploadProfilePicture()" style="width:100%;font-size:.7rem;margin-bottom:6px"/>
+        <button onclick="closeProfileEditor()" style="width:100%;background:#e8e8e8;border:none;border-radius:6px;padding:5px;font-size:.65rem;font-weight:600;color:#6b7280;cursor:pointer;font-family:inherit">ยกเลิก</button>
+      </div>
     </div>
   </aside>
 
@@ -488,6 +499,120 @@
       firebase.auth().signOut().then(function() {
         window.location.href = 'login.html';
       });
+    }
+  </script>
+
+  <script>
+    // Load user profile picture
+    function loadUserProfile() {
+      firebase.auth().onAuthStateChanged(async function(user) {
+        if (!user) { window.location.href='login.html'; return; }
+        
+        const email = user.email;
+        const emailEl = document.getElementById('user-email');
+        const initialsEl = document.getElementById('user-initials');
+        const imgEl = document.getElementById('user-avatar-img');
+        const iconEl = document.getElementById('user-avatar-icon');
+        
+        if (emailEl) emailEl.textContent = email;
+        
+        // Generate initials
+        const initials = email.substring(0,2).toUpperCase();
+        if (initialsEl) initialsEl.textContent = initials;
+        
+        // Try to load custom profile picture from Firestore
+        try {
+          const userDoc = await db.collection("users").doc(user.uid).get();
+          if (userDoc.exists && userDoc.data().profilePictureUrl) {
+            const url = userDoc.data().profilePictureUrl;
+            if (imgEl) {
+              imgEl.src = url;
+              imgEl.style.display = 'block';
+              if (iconEl) iconEl.style.display = 'none';
+            }
+            return;
+          }
+        } catch (e) { console.error('Profile load error:', e); }
+        
+        // Fallback to gravatar
+        const hash = md5(email.toLowerCase());
+        const gravatarUrl = `https://www.gravatar.com/avatar/${hash}?d=identicon&s=32`;
+        if (imgEl) {
+          imgEl.src = gravatarUrl;
+          imgEl.style.display = 'block';
+          if (iconEl) iconEl.style.display = 'none';
+        }
+      });
+    }
+    
+    function openProfileEditor() {
+      document.getElementById('profile-upload').style.display = 'block';
+      document.getElementById('avatar-file').click();
+    }
+    
+    function closeProfileEditor() {
+      document.getElementById('profile-upload').style.display = 'none';
+      document.getElementById('avatar-file').value = '';
+    }
+    
+    async function uploadProfilePicture() {
+      const file = document.getElementById('avatar-file').files[0];
+      if (!file) return;
+      
+      const user = firebase.auth().currentUser;
+      if (!user) return;
+      
+      try {
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+          const base64 = e.target.result;
+          // Store in Firestore (max 1MB)
+          if (base64.length > 1000000) {
+            alert('รูปภาพใหญ่เกินไป (ต้อง < 1MB)');
+            return;
+          }
+          
+          await db.collection("users").doc(user.uid).set({
+            email: user.email,
+            profilePictureUrl: base64,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+          
+          // Update UI
+          document.getElementById('user-avatar-img').src = base64;
+          document.getElementById('user-avatar-img').style.display = 'block';
+          document.getElementById('user-avatar-icon').style.display = 'none';
+          closeProfileEditor();
+        };
+        reader.readAsDataURL(file);
+      } catch (err) {
+        alert('❌ ' + err.message);
+      }
+    }
+    
+    function doLogout() {
+      firebase.auth().signOut().then(() => {
+        window.location.href='login.html';
+      });
+    }
+    
+    // Simple MD5 for Gravatar (using a simple hash)
+    function md5(str) {
+      let hash = 0;
+      if (str.length === 0) return hash.toString(16);
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      return Math.abs(hash).toString(16);
+    }
+    
+    // Auto-load profile on page load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadUserProfile);
+    } else {
+      loadUserProfile();
     }
   </script>
 </body>
